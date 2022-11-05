@@ -510,9 +510,6 @@ def build_tracer(name, task, loader=None, hostname=None, store_errors=True,
                             if isinstance(retval, _chord):
                                 retval.apply_async(
                                     chain=chain,
-                                    parent_id=uuid, 
-                                    root_id=root_id,
-                                    priority=task_priority,
                                 )
                             else:
                                 _chsig = signature(chain.pop(), app=app)
