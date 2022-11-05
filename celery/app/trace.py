@@ -508,7 +508,7 @@ def build_tracer(name, task, loader=None, hostname=None, store_errors=True,
                         chain = task_request.chain
                         if chain:
                             if isinstance(retval, _chord):
-                                retval()
+                                retval.apply_async(chain=chain)
                             else:
                                 _chsig = signature(chain.pop(), app=app)
                                 _chsig.apply_async(
