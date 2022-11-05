@@ -27,6 +27,7 @@ from celery.utils.nodenames import gethostname
 from celery.utils.objects import mro_lookup
 from celery.utils.saferepr import saferepr
 from celery.utils.serialization import get_pickleable_etype, get_pickleable_exception, get_pickled_exception
+from celery.canvas import _chord
 
 # ## ---
 # This is the heart of the worker, the inner loop so to speak.
@@ -506,7 +507,14 @@ def build_tracer(name, task, loader=None, hostname=None, store_errors=True,
                         # execute first task in chain
                         chain = task_request.chain
                         if chain:
-                            if not isinstance(retval, AsyncResult):
+                            if isinstance(retval, _chord):
+                                retval.apply_async(
+                                    chain=chain,
+                                    parent_id=uuid, 
+                                    root_id=root_id,
+                                    priority=task_priority,
+                                )
+                            else:
                                 _chsig = signature(chain.pop(), app=app)
                                 _chsig.apply_async(
                                     (retval,), chain=chain,
