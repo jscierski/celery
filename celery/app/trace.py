@@ -506,12 +506,13 @@ def build_tracer(name, task, loader=None, hostname=None, store_errors=True,
                         # execute first task in chain
                         chain = task_request.chain
                         if chain:
-                            _chsig = signature(chain.pop(), app=app)
-                            _chsig.apply_async(
-                                (retval,), chain=chain,
-                                parent_id=uuid, root_id=root_id,
-                                priority=task_priority
-                            )
+                            if not isinstance(retval, AsyncResult):
+                                _chsig = signature(chain.pop(), app=app)
+                                _chsig.apply_async(
+                                    (retval,), chain=chain,
+                                    parent_id=uuid, root_id=root_id,
+                                    priority=task_priority
+                                )
                         task.backend.mark_as_done(
                             uuid, retval, task_request, publish_result,
                         )
